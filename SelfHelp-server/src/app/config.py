@@ -8,7 +8,7 @@ import os
 class Settings(BaseSettings):
 
     # API Settings
-    API_VERSION: str = Field(default="/api/v1", description="Api version")
+    API_VERSION_STR: str = Field(default="/api/v1", description="Api version")
     DEBUG: bool = Field(default=False, description="Debug mode")
     ENVIRONMENT: str = Field(default="development", description="Environment")
     

@@ -6,10 +6,12 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 from .middleware import log_middleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from app.api.token import token_router
+from app.config import settings, Settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting up...")
+    logger.info("Starting up...🚀🚀🚀")
     yield
     logger.info("Shutting down...")
 
@@ -37,8 +39,8 @@ fast_api = FastAPI(lifespan=lifespan,
 
 fast_api.add_middleware(BaseHTTPMiddleware, dispatch=log_middleware)
 
-## Include API router
-#app.include_router(api_router, prefix=settings.API_V1_STR)
+# Include API router
+fast_api.include_router(token_router, prefix=settings.API_VERSION_STR)
 
 
 # Root endpoint
