@@ -27,13 +27,19 @@ class Settings(BaseSettings):
     ASSEMBLYAI_API_KEY: Optional[str] = Field(default=None, description="AssemblyAI API key")
     GOOGLE_API_KEY: Optional[str] = Field(default=None, description="GOOGLE API key")
     
+
+    # BACKEND_CORS_ORIGINS: list = Field(
+    #     default=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+    #     description="Allowed CORS origins"
+    # )
+
+
     # CORS Settings
-    '''
-    BACKEND_CORS_ORIGINS: list = Field(
-        default=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
-        description="Allowed CORS origins"
-    )
-    '''
+    BACKEND_CORS_ORIGINS: List[Union[str, AnyHttpUrl]] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173"
+    ]
 
     
     class Config:

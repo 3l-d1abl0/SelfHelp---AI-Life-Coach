@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .logger import logger
 from fastapi.exceptions import RequestValidationError
@@ -47,6 +48,16 @@ fast_api = FastAPI(lifespan=lifespan,
                 },
             )
 
+# Add CORS middleware
+fast_api.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Add logging middleware
 fast_api.add_middleware(BaseHTTPMiddleware, dispatch=log_middleware)
 
 # Include API router
