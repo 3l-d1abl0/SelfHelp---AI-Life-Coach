@@ -6,11 +6,15 @@ from app.config import settings
 from app.logger import logger
 from app.db.mongodb import db
 import httpx
+from bson.objectid import ObjectId
 
 meeting_router = APIRouter(tags=["meeting"])
 
 class MeetingCreate(BaseModel):
     transcript: str
+
+class MeetingData(BaseModel):
+    meetingId: str
 
 @meeting_router.post("/meeting/new", status_code=status.HTTP_201_CREATED)
 async def create_new_meeting(meeting_data: MeetingCreate) -> Dict[str, Any]:
@@ -31,7 +35,8 @@ async def create_new_meeting(meeting_data: MeetingCreate) -> Dict[str, Any]:
         # Prepare the document to insert
         meeting_doc = {
             "transcript": meeting_data.transcript,
-            "created_at": datetime.utcnow()
+            "created_at": datetime.utcnow(),
+            "status": "SCHEDULED"
         }
         
         # Insert the document
@@ -45,4 +50,92 @@ async def create_new_meeting(meeting_data: MeetingCreate) -> Dict[str, Any]:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create meeting"
+        )
+
+
+@meeting_router.post("/meeting/start", status_code=status.HTTP_200_OK)
+async def start_new_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
+    """
+    Receives meeting id for a meeting and starts a response with the System.
+    
+    Args:
+        meeting_data (MeetingData): The meeting data containing the meeting id.
+        
+    Returns:
+        Dict[str, Any]: Returns the updated meeting status and relevant message.
+    """
+    try:
+        meeting_collection = db.get_db()[settings.MONGODB_MEETINGS_COLLECTION]
+        
+        # Find the meeting by ID
+        meeting = meeting_collection.find_one({"_id": ObjectId(meeting_data.meetingId)})
+        if not meeting:
+            raise HTTPException(status_code=404, detail="Meeting not found")
+        
+        current_time = datetime.utcnow()
+        update_data = {}
+        response = {}
+        
+        if meeting.get("status") == "SCHEDULED":
+            update_data = {
+                "status": "ONGOING",
+                "starting_time": current_time
+            }
+            response = {
+                "status": "meeting_started",
+                "message": "Meeting has been started successfully"
+            }
+            
+        elif meeting.get("status") == "ONGOING":
+            starting_time = meeting.get("starting_time")
+            if not starting_time:
+                # If for some reason starting_time is not set, update it to now
+                starting_time = current_time
+                update_data["starting_time"] = current_time
+                
+            time_difference = (current_time - starting_time).total_seconds()
+            
+            if time_difference >= 600:
+                update_data["status"] = "OVER"
+                response = {
+                    "status": "meeting_ended",
+                    "message": "Meeting has ended as it exceeded the 10-minute duration"
+                }
+            else:
+                remaining_seconds = 600 - time_difference
+                response = {
+                    "status": "meeting_ongoing",
+                    "message": f"Meeting is ongoing. {remaining_seconds} seconds remaining.",
+                    "remaining_seconds": remaining_seconds
+                }
+                
+        elif meeting.get("status") == "OVER":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Meeting has already ended"
+            )
+        
+        else:
+            logger.error(f"Error: meeting with no status: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="An error occurred while processing the meeting"
+            )    
+        
+        # Update the meeting in MongoDB if there are changes
+        if update_data:
+            meeting_collection.update_one(
+                {"_id": ObjectId(meeting_data.meetingId)},
+                {"$set": update_data}
+            )
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in {str(meeting_data.meetingId)} /meeting/start: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while processing the meeting"
         )
