@@ -16,6 +16,10 @@ class MeetingCreate(BaseModel):
 class MeetingData(BaseModel):
     meetingId: str
 
+class MeetingStopResponse(BaseModel):
+    status: str
+    message: str
+
 @meeting_router.post("/meeting/new", status_code=status.HTTP_201_CREATED)
 async def create_new_meeting(meeting_data: MeetingCreate) -> Dict[str, Any]:
     """
@@ -97,6 +101,7 @@ async def start_new_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
             
             if time_difference >= 600:
                 update_data["status"] = "OVER"
+                update_data["end_time"] = current_time
                 response = {
                     "status": "meeting_ended",
                     "message": "Meeting has ended as it exceeded the 10-minute duration"
@@ -138,4 +143,66 @@ async def start_new_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while processing the meeting"
+        )
+
+@meeting_router.post("/meeting/stop", response_model=MeetingStopResponse, status_code=status.HTTP_200_OK)
+async def stop_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
+    """
+    Stops an ongoing meeting by updating its status to OVER and setting the ending time.
+    
+    Args:
+        meeting_data (MeetingData): The meeting data containing the meeting id.
+        
+    Returns:
+        Dict[str, Any]: Returns the updated meeting status and relevant message.
+    """
+    try:
+        meeting_collection = db.get_db()[settings.MONGODB_MEETINGS_COLLECTION]
+        
+        # Find the meeting by ID
+        meeting = meeting_collection.find_one({"_id": ObjectId(meeting_data.meetingId)})
+        if not meeting:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Meeting not found"
+            )
+        
+        # Check if meeting is already over
+        if meeting.get("status") == "OVER":
+            return {
+                "status": "already_ended",
+                "message": "Meeting has already ended"
+            }
+            
+        # Check if meeting is in a valid state to be stopped
+        if meeting.get("status") != "ONGOING":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot stop a meeting that is {meeting.get('status', 'not started')}"
+            )
+        
+        # Update the meeting status to OVER and set ending time
+        current_time = datetime.utcnow()
+        meeting_collection.update_one(
+            {"_id": ObjectId(meeting_data.meetingId)},
+            {
+                "$set": {
+                    "status": "OVER",
+                    "ending_time": current_time
+                }
+            }
+        )
+        
+        return {
+            "status": "meeting_ended",
+            "message": "Meeting has been successfully ended"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in {str(meeting_data.meetingId)} /meeting/stop: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while stopping the meeting"
         )
