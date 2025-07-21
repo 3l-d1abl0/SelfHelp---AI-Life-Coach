@@ -17,7 +17,11 @@ class Settings(BaseSettings):
     MONGODB_DATABASE: str = Field(default="self-help", description="MongoDB Database")
     MONGODB_MEETINGS_COLLECTION: str = Field(default="meetings", description="MongoDB meetings collection")
     
-    #Server
+    # Redis Settings
+    REDIS_URL: str = Field(default="redis://localhost:6379", description="Redis connection URL")
+    REDIS_DB: int = Field(default=0, description="Redis database number")
+    
+    # Server
     PORT: int = Field(default=8000, description="Server port")
     RELOAD: bool = Field(default=True, description="Auto-reload on code changes")
 

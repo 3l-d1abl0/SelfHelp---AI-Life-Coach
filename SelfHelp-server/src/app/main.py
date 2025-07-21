@@ -9,21 +9,33 @@ from .middleware import log_middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.api.token import token_router
 from app.api.meeting import meeting_router
+from app.api.websocket import websocket_router
 from app.config import settings, Settings
 from app.db.mongodb import db
+from app.db.redis import redis_manager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up...🚀🚀🚀")
+    
     # Connect to MongoDB
     db.connect_db()
     logger.info("Connected to MongoDB")
     
+    # Connect to Redis
+    try:
+        await redis_manager.connect_redis()
+    except Exception as e:
+        logger.error(f"Failed to connect to Redis: {str(e)}")
+        raise
+    
     yield
     
-    # Close MongoDB connection
+    # Close connections
     db.close_db()
     logger.info("Closed MongoDB connection")
+    
+    await redis_manager.close_redis()
     logger.info("Shutting down...")
 
 
@@ -61,6 +73,7 @@ fast_api.add_middleware(
 fast_api.add_middleware(BaseHTTPMiddleware, dispatch=log_middleware)
 
 # Include API router
+fast_api.include_router(websocket_router)
 fast_api.include_router(token_router, prefix=settings.API_VERSION_STR)
 fast_api.include_router(meeting_router, prefix=settings.API_VERSION_STR)
 
