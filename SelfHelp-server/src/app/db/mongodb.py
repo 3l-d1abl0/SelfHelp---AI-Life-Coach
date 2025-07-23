@@ -18,19 +18,17 @@ class MongoDB:
         try:
             # Connect to MongoDB
             cls.client = MongoClient(settings.MONGODB_URL, server_api=ServerApi('1'))
-            logger.info(cls.client)
+            #logger.info(cls.client)
             # Get or create database
             cls.db = cls.client[settings.MONGODB_DATABASE]
             
-            logger.info("--------------------------------")
             # Ensure the database exists by creating a collection if it doesn't exist
             cls.db.command('ping')
             
             # Create collection if it doesn't exist
-            logger.info("--------------------------------")
             collection_names = cls.db.list_collection_names()
             if settings.MONGODB_MEETINGS_COLLECTION not in collection_names:
-                logger.info("--------------------------------")
+                logger.info(f"Collection {settings.MONGODB_MEETINGS_COLLECTION} does not exists")
                 cls.db.create_collection(settings.MONGODB_MEETINGS_COLLECTION)
                 logger.info(f"Created collection: {settings.MONGODB_MEETINGS_COLLECTION}")
             
