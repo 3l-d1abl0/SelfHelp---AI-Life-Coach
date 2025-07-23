@@ -7,7 +7,7 @@ import httpx
 token_router = APIRouter(tags=["token"])
 
 
-@token_router.get("/assemblyaiToken", status_code=status.HTTP_200_OK)
+@token_router.post("/assemblyaiToken", status_code=status.HTTP_200_OK)
 async def get_assembly_token() -> Dict[str, Any]:
     """
     Get AssemblyAI token for client-side use
@@ -42,20 +42,43 @@ async def get_assembly_token() -> Dict[str, Any]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=error_msg
         )
+
+@token_router.post("/heygenToken", status_code=status.HTTP_200_OK)
+async def get_heygen_token() -> Dict[str, Any]:
+    """
+    Get Heygen token for client-side use
     
-    except Exception as e:
-        logger.info("ERROR: get_assembly_token %s", str(e))
+    Returns:
+        Dict: Token information
+    """
+    if not settings.HEYGEN_API_KEY:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get AssemblyAI token: {str(e)}"
+            detail="Heygen API key not configured"
         )
-    '''
+
+
     try:
-            return {"access_token": "some_token", "token_type": "bearer"}
-    
-    except Exception as e:
+        url = "https://api.heygen.com/v1/streaming.create_token"
+        payload = {}
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "x-api-key": settings.HEYGEN_API_KEY
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=headers, params=payload)
+            response.raise_for_status()#Raise Httpx error if not 200
+            response_data = response.json()
+            #print(response_data["data"])
+            return response_data["data"]
+            
+    except httpx.HTTPStatusError as e:
+        error_msg = f"Error from HeyGen API: {e.response.text}"
+        logger.info("ERROR: get_heygen_token %s", error_msg)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get AssemblyAI token: {str(e)}"
+            detail=error_msg
         )
-    '''
+    

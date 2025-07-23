@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     ELEVENLABS_API_KEY: Optional[str] = Field(default=None, description="ElevenLabs API key")
     ASSEMBLYAI_API_KEY: Optional[str] = Field(default=None, description="AssemblyAI API key")
     GOOGLE_API_KEY: Optional[str] = Field(default=None, description="GOOGLE API key")
+    HEYGEN_API_KEY: Optional[str] = Field(default=None, description="HEYGEN API key")
     
 
     # BACKEND_CORS_ORIGINS: list = Field(
