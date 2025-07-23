@@ -8,6 +8,7 @@ class Gemini:
     def __init__(self):
         # Configure Gemini API
         genai.configure(api_key=settings.GOOGLE_API_KEY)
+        self.model_name ="gemini-2.5-flash"
         self.generation_config = {
             "temperature": 0,
             "top_p": 0.95,
@@ -41,14 +42,14 @@ class Gemini:
 
         IMPORTANT CONVERSATION FLOW:
         - your first message to user should be a heartfelt greeting and asking if the user would like to add anything more.
-        - Always be precise and crisp with you answers, your answer should not exceed 250 words.
+        - Always be precise and crisp with you answers, your answers length can be at max 250 words and should never exceed 250 words.
         - You can say phrases like "Please take your time to answer", "Feel free to share your thoughts" if you feel user is hesitant to share their feeling.
         - If you feel the onversation is coming to an conclusion always suggest the user to seek someone professional in real life physically.
         - Reply in plain text without any formatting, markdown or otherwise."""
         
 
         self.model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash",
+            model_name=self.model_name,
             safety_settings=self.safety_settings,
             generation_config=self.generation_config,
             system_instruction=self.system_instruction

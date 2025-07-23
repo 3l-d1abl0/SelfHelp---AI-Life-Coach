@@ -8,10 +8,27 @@ import requests
 import base64
 import google.generativeai as genai
 from app.db.redis import redis_manager
-
+from app.models.gemini import geminiai
+from app.lib.redislib import save_session
 
 #Websocket Router initialized
 websocket_router = APIRouter(tags=["websocket"])
+
+
+def get_recent_mentor_message(conversation_data):
+
+    for entry in reversed(conversation_data):
+        if entry.get("role") == "model":
+            if entry.get("parts") and isinstance(entry["parts"], list) and len(entry["parts"]) > 0:
+                # Assuming the 'text' is in the first part of the 'parts' list
+                message = ""
+                for part in entry["parts"]:
+                    message +=part.get("text")
+                
+
+                return message
+    return None
+
 
 # Connection manager for WebSocket connections
 class ConnectionManager:
@@ -23,13 +40,19 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections[session_id] = websocket 
 
-        #print("CONNECTED: ", websocket.session)
-        print("CONNECTED: ", websocket)
+        #print("CONNECTED: ", session_id, websocket)
+        
+        redis_client = await redis_manager.get_redis_client()
+        chat_history = await redis_client.get(session_id)
+        if chat_history:
+            chat_history = json.loads(chat_history)
+
+        mentor_message = get_recent_mentor_message(chat_history)
         
         # Send welcome message
         await self.send_message(session_id, {
-            "type": "conversation",
-            "message": "Connected! I'm your AI nutrition and fitness assistant. How can I help you today?",
+            "type": "initiation",
+            "message": mentor_message,
             "session_id": session_id
         })
 
@@ -51,26 +74,17 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-
-idx = 1
-temp_session_id = "6877e77032a8114efc923014"
-
-
 @websocket_router.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
     await manager.connect(websocket, session_id)
 
     # Get a Redis client
     redis_client = await redis_manager.get_redis_client()
-
-    # Use the client
-    await redis_client.set("key", "value")
-    chat_history = await redis_client.get(temp_session_id)
-    #print(chat_history)
-
+    chat_history = await redis_client.get(session_id)
     if chat_history:
         chat_history = json.loads(chat_history)
 
+    chat = geminiai.model.start_chat(history=chat_history)
 
     try:
         while True:
@@ -96,27 +110,14 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
             #         "timestamp": datetime.now().isoformat()
             #     })
 
-            serializable_message = ""
-            if message_data["type"] =="user_message":
-                global idx
-                idx+=2
+            response = chat.send_message(message_data["message"])
+            updated_history = chat.history
+            await save_session(str(session_id), updated_history)
 
-                print("USER: ", message_data["message"])
-                print("CHAT: ", chat_history[idx])
-
-                serializable_parts = ""
-                for part in chat_history[idx]["parts"]:
-                    print('PART: ', part)
-                    serializable_message += part["text"]
-                    # if hasattr(part, 'text'):
-                    #     serializable_parts.append({'text': part.text})
-
-
-            reply = f"you Send : {data}"
             await manager.send_message(session_id, {
                 "type": "conversation",
-                "message": serializable_message,
-                "session_id": temp_session_id
+                "message": response.text,
+                "session_id": session_id
             })
 
                 
