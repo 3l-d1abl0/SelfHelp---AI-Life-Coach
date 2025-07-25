@@ -96,7 +96,7 @@ async def start_new_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
             response = {
                 "status": "meeting_started",
                 "detail": "Meeting has been started successfully",
-                "remaining_seconds": 600
+                "remaining_seconds": 300
             }
             
         elif meeting.get("status") == "ONGOING":
@@ -108,7 +108,7 @@ async def start_new_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
                 
             time_difference = (current_time - starting_time).total_seconds()
             
-            if time_difference >= 600:
+            if time_difference >= 300:
                 update_data["status"] = "OVER"
                 update_data["end_time"] = current_time
                 response = {
@@ -116,7 +116,7 @@ async def start_new_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
                     "detail": "Meeting has ended as it exceeded the 10-minute duration"
                 }
             else:
-                remaining_seconds = 600 - time_difference
+                remaining_seconds = 300 - time_difference
                 response = {
                     "status": "meeting_ongoing",
                     "detail": f"Meeting is ongoing. {remaining_seconds} seconds remaining.",
@@ -180,7 +180,7 @@ async def stop_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
         if meeting.get("status") == "OVER":
             return {
                 "status": "already_ended",
-                "message": "Meeting has already ended"
+                "detail": "Meeting has already ended"
             }
             
         # Check if meeting is in a valid state to be stopped
@@ -204,7 +204,7 @@ async def stop_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
         
         return {
             "status": "meeting_ended",
-            "message": "Meeting has been successfully ended"
+            "detail": "Meeting has been successfully ended"
         }
         
     except HTTPException:
