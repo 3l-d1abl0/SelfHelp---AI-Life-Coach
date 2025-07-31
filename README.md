@@ -1,6 +1,6 @@
 # 🧘 SelfHelp 🧘- AI Life Coach / Mentor  
 
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="" height="240"></img>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="https://github.com/3l-d1abl0/SelfHelp---AI-Life-Coach/blob/main/assets/AI-Life-Coach.png" height="720"></img>
 
 🚀 **Unlock Your Potential with a Personalized AI Life Coach**  
 An interactive platform where users engage in empathetic, voice-driven conversations with an AI mentor for emotional support, personal growth, and holistic life balance.
