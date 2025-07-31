@@ -1,5 +1,7 @@
 # 🧘 SelfHelp 🧘- AI Life Coach / Mentor  
 
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="" height="240"></img>
+
 🚀 **Unlock Your Potential with a Personalized AI Life Coach**  
 An interactive platform where users engage in empathetic, voice-driven conversations with an AI mentor for emotional support, personal growth, and holistic life balance.
 AI Life Coach is a personalized, emotionally intelligent virtual mentor designed to guide users through self-growth, emotional challenges, and life decisions.
@@ -57,32 +59,5 @@ env
     HEYGEN_API_KEY=your_heygen_key  
     MONGO_URI=your_mongodb_uri  
     REDIS_URL=your_redis_url  
-
-
-📂 Project Structure
-
-
-ai-life-coach/
-├── SelfHelp-server/  # FastAPI server  
-│   ├── envs/            
-│   ├── requirements.txt
-│   ├── src
-│   │   ├── app
-│   │   │   ├── api/    # Core API routes 
-│   │   │   ├── config.py
-│   │   │   ├── db/
-│   │   │   ├── lib/
-│   │   │   ├── logger.py
-│   │   │   ├── main.py
-│   │   │   ├── middleware.py
-│   │   │   ├── models/
-│   │   ├── logs
-│   │   │   └── app.log
-│   │   └── run.py
-│   └── tests
-│       └── test_websocket.py
-├── SelfHelp-frontend/              # Svelte app  
-│   ├── src/  
-│   │   └── routes/        
-└── README.md  
+        
 
