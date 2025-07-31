@@ -31,6 +31,11 @@ This AI-powered platform combines real-time speech transcription, intelligent di
 
 ---
 
+## Demo
+
+
+[![Watch the video](https://github.com/3l-d1abl0/SelfHelp---AI-Life-Coach/blob/main/assets/AI-Life-Coach.png)](https://www.youtube.com/watch?v=JI1D07IHBkY)
+
 ## 🛠️ **Setup & Installation**  
 1. **Clone the repo**:  
    ```bash  
