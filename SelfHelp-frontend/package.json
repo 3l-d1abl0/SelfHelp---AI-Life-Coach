@@ -30,6 +30,13 @@
 		]
 	},
 	"dependencies": {
-		"@fontsource/fira-mono": "^5.2.6"
+		"@auth/core": "^0.40.0",
+		"@auth/mongodb-adapter": "^3.10.0",
+		"@auth/sveltekit": "^1.10.0",
+		"@fontsource/fira-mono": "^5.2.6",
+		"fs": "0.0.1-security",
+		"mongodb": "^6.18.0",
+		"path": "^0.12.7",
+		"winston": "^3.17.0"
 	}
 }
