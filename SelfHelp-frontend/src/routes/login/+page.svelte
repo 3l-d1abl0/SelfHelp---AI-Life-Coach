@@ -13,6 +13,7 @@
 	<div class="container">
 		<div class="login-card card">
 			<div class="login-header">
+				<h1>Welcome Back</h1>
 				<p>Sign in with your Google account to continue</p>
 			</div>
 			
@@ -38,9 +39,9 @@
 			</div>
 			
 			<div class="login-footer">
-				<!--
+				
 				<p>By signing in, you agree to our terms of service and privacy policy.</p>
-				-->
+				
 			</div>
 		</div>
 	</div>
@@ -87,10 +88,11 @@
 		margin-bottom: 2rem;
 	}
 
+	/*
     .login-form button {
         display: inline-flex;
-        align-items: center; /* Vertically center both SVG and span */
-        gap: 0.5rem; /* Optional: adds spacing between SVG and text */
+        align-items: center; 
+        gap: 0.5rem; 
         padding: 0.5rem 1rem; Optional: adjust as needed
     }
 
@@ -102,7 +104,9 @@
 
 	.login-form button:hover{
 		cursor: pointer;
-	}
+	}*/
+
+	
 	
 	.login-footer p {
 		font-size: 0.875rem;
