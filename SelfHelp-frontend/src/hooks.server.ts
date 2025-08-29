@@ -3,7 +3,7 @@ import { isRedirect, redirect, type Handle } from '@sveltejs/kit';
 import logger from '$lib/server/logger.js';
 import { sequence } from '@sveltejs/kit/hooks';
 
-const protectedRoutes = ['/profile', '/meeting', '/logout'];
+const protectedRoutes = ['/meetings', '/meeting', '/logout'];
 
 // First, handle authentication
 export const handleAuth = authHandle;
