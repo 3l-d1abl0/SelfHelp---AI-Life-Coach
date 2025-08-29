@@ -10,6 +10,8 @@ export const handleAuth = authHandle;
 
 // Then, handle our custom logic
 export const handleSession: Handle = async ({ event, resolve }) => {
+
+    logger.error("__________________________________________");
     // Skip session handling for static assets and API routes
     if (event.url.pathname.startsWith('/_app/') || event.url.pathname.startsWith('/api/')) {
         return await resolve(event);
@@ -18,7 +20,7 @@ export const handleSession: Handle = async ({ event, resolve }) => {
     try {
         // Get the session
         const session = await event.locals.auth?.();
-        logger.info(`Session for ${event.url.pathname}: ${JSON.stringify(session)}`);
+        logger.info(`HOOKS: Session for ${event.url.pathname}: ${JSON.stringify(session)}`);
 
         // Set user in locals if available
         if (session?.user) {

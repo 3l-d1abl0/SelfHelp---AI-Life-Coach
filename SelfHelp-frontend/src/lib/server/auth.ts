@@ -24,7 +24,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 			return true;
 		},
 		async session({ session, token }) {
-			logger.info(`Session accessed for user: ${session.user?.email}`);
+			//logger.info(`Session accessed for user: ${session.user?.email}`);
 			return session;
 		},
 		async jwt({ token, user }) {
