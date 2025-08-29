@@ -45,6 +45,10 @@
 			
 			<div class="dropdown-divider"></div>
 			
+			<a href="/meeting/new" class="dropdown-item" onclick={closeDropdown}>
+				New Meet
+			</a>
+
 			<a href="/meetings" class="dropdown-item" onclick={closeDropdown}>
 				My Meetings
 			</a>

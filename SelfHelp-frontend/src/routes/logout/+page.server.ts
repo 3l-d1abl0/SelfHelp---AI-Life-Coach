@@ -5,14 +5,11 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
-    console.log('Session before logout ...');
 	
 	if (session?.user) {
-		logger.info(`User logged out: ${session.user.email}`);
+		logger.info(`User to log out: ${session.user.email}`);
 		//await signOut(event);
-		//await event.locals.auth().signOut();
-
-		console.log('After sign out  ...');
+		//present the form
 	}else{
 		logger.info(`No user Found !!!`);
 		throw redirect(302, '/');

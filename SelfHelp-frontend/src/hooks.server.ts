@@ -20,7 +20,7 @@ export const handleSession: Handle = async ({ event, resolve }) => {
     try {
         // Get the session
         const session = await event.locals.auth?.();
-        logger.info(`HOOKS: Session for ${event.url.pathname}: ${JSON.stringify(session)}`);
+        //logger.info(`HOOKS: Session for ${event.url.pathname}: ${JSON.stringify(session)}`);
 
         // Set user in locals if available
         if (session?.user) {
@@ -37,12 +37,15 @@ export const handleSession: Handle = async ({ event, resolve }) => {
         // Check protected routes
         if (protectedRoutes.some(route => event.url.pathname.startsWith(route)) && !session?.user) {
             logger.warn(`Unauthorized access attempt to ${event.url.pathname}`);
-            throw redirect(303, '/login');
+            if(event.url.pathname === '/logout')
+                redirect(303, '/');
+
+            redirect(303, '/login');
         }
 
         return await resolve(event);
     } catch (error) {
-        logger.error(`Error in handleSession: ${error}`);
+        logger.error(`Error in handleSession: ${JSON.stringify(error)}`);
         throw error;
     }
 };
