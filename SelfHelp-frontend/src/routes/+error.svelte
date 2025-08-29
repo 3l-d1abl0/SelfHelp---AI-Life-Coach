@@ -3,17 +3,17 @@
 </script>
 
 <svelte:head>
-	<title>404 - Page Not Found</title>
+	<title>{$page.status} : {$page.error.message}</title>
 </svelte:head>
 
 <div class="error-page">
 	<div class="container">
 		<div class="error-card card">
 			<div class="error-animation">
-				<div class="glitch" data-text="404">404</div>
+				<div class="glitch" data-text="{$page.status}">{$page.status}</div>
 			</div>
 			
-			<h1>Page Not Found</h1>
+			<h1>{$page.error.message}</h1>
 			<p>The page you're looking for doesn't exist or has been moved.</p>
 			
 			<div class="error-actions">
