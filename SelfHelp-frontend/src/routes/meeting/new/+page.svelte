@@ -16,13 +16,12 @@
 	import TranscriptionSidebar from '$lib/components/TranscriptionSidebar.svelte';
 	import Error from '../../+error.svelte';
 
-	let assemblyService;
 	let audioContext;
-	let recordingStartTime;
-	let recordingDuration = 0;
+	let recordingStartTime: number;
+	let recordingDuration = $state(0);
 	let recordingInterval;
-	let showSubmitButton: boolean = false;
-	let isSubmitting: boolean = false;
+	let showSubmitButton: boolean = $state(false);
+	let isSubmitting: boolean = $state(false);
 	let permissionsGranted: boolean = $state(false);
 	let connectionStatus: string = 'idle'; // idle, connecting, connected, stopped, error
 	
@@ -66,25 +65,139 @@
 		}
 	}
 	
+	function handleTranscription(text: string, formatted: boolean) {
+		if (formatted) {
+			transcription.update(current => current + ' ' + text);
+		}
+	}
 	
 	
-	let rt = null;
-
-	let scriptArray = [];
+	let transcriber: StreamingTranscriber | null = null;
 
 
 	let finalTranscript: string = "";
-	let penUltimate: string = "";
+	let penUltimate: string = $state("");
+
+	let liveTranscript: string = $state("");
+
+
+	async function setUpTranscriber(token: string){
+
+		transcriber = new StreamingTranscriber({
+			token,
+			sampleRate: 16000,
+			formatTurns: false,
+		});
+
+		//Set up event Listeners
+		transcriber.on("open", ({ id, expires_at }) => console.log('Transcriber SESSION ID:', id, 'Expires at:', expires_at));
+		
+		transcriber.on("close", (code, reason) => {
+			console.log('Transcriber Closed', code, reason)
+			connectionStatus ='error';
+		});
+
+
+		transcriber.on("turn", ( transcript ) => {
+
+
+			console.log(transcript);
+			console.log('Live ... transcript:', transcript.transcript);
+			console.info(`Live Transcript: ${liveTranscript}`);
+			
+			if (transcript.transcript ==""){
+				console.log("transcription blank.... ");
+				penUltimate +="\n"
+				finalTranscript += penUltimate;
+			}
+			penUltimate = transcript.transcript;
+
+
+			liveTranscript = penUltimate.substring(penUltimate.length-50);
+		});
+
+
+		transcriber.on("error", (error) => console.error('Error', error));
+
+		//Connect
+		await transcriber.connect();
+	}
+
+	function downsampleBuffer(buffer, originalSampleRate, targetSampleRate) {
+			
+		if (targetSampleRate === originalSampleRate) {
+				return buffer;
+			}
+
+			const sampleRateRatio = originalSampleRate / targetSampleRate;
+			const newLength = Math.round(buffer.length / sampleRateRatio);
+			const result = new Int16Array(newLength);
+
+			let offsetResult = 0;
+			let offsetBuffer = 0;
+
+			while (offsetResult < result.length) {
+				const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+				// Average the samples in this range
+				let sum = 0, count = 0;
+				for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+				sum += buffer[i];
+				count++;
+				}
+				result[offsetResult] = Math.max(-32768, Math.min(32767, (sum / count) * 32768));
+				offsetResult++;
+				offsetBuffer = nextOffsetBuffer;
+			}
+
+			return result;
+	}
+
+	function isSilent(buffer, threshold = 0.01) {
+		let sumOfSquares = 0;
+		for (let i = 0; i < buffer.length; i++) {
+			sumOfSquares += buffer[i] * buffer[i];
+		}
+		const rms = Math.sqrt(sumOfSquares / buffer.length);
+		
+		//console.log("Current RMS:", rms); 
+		return rms < threshold;
+	}
+
+	function listenToMe(){
+
+		const source = audioContext.createMediaStreamSource($mediaStream);
+		const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+		source.connect(processor);
+		processor.connect(audioContext.destination);
+
+		processor.onaudioprocess = (event) => {
+
+			if ($isRecording) {
+
+				let float32Data = event.inputBuffer.getChannelData(0);
+				
+				if (isSilent(float32Data)) {
+					//console.log('Silence detected, skipping API call.');
+                	return; // Stop processing this chunk
+            	}
+				
+				console.log('sending ....');
+				const downsampled = downsampleBuffer(float32Data, audioContext.sampleRate, 16000);
+				transcriber.sendAudio(downsampled.buffer);
+			}
+		};
+			
+	}
 	
 	async function startRecording() {
+
 		if (!permissionsGranted || !$mediaStream) {
 			errorMessage.set('Please enable camera and microphone permissions first.');
 			return;
 		}
 		
 		try {
-
-
 			    //Get the temp streaming Key
 				const response = await	fetch(`${PUBLIC_BACKEND_SERVER_URL}/api/v1/assemblyaiToken`, {
 							method: 'POST',
@@ -101,133 +214,35 @@
 				const token = authData.token;
 				console.log('TOKEN: ', token);
 
-				rt = new StreamingTranscriber({
-							token,
-						sampleRate: 16000,
-						formatTurns: false,
-						});
 
-				// rt = new RealtimeTranscriber({
-				// 	token,
-				// 	disablePartialTranscripts: true,
-				// 	// optionally tweak utterance threshold:
-				// 	endUtteranceSilenceThreshold: 500
-				// 	});
-
-				rt.on("open", ({ id, expires_at }) => console.log('Session ID:', id, 'Expires at:', expires_at));
+				await setUpTranscriber(token);
 				
-				rt.on("close", (code, reason) => {
-					console.log('Closed', code, reason)
-					connectionStatus ='error';
-				});
-
-
-				rt.on("turn", ( transcript ) => {
-					console.log('Transcript:', transcript)
-					scriptArray.push(transcript.transcript);
-					if (transcript.transcript ==""){
-
-						penUltimate +="\n"
-						finalTranscript += penUltimate;
-						
-
-					}
-					penUltimate = transcript.transcript;
-				});
-
-
-
-				// rt.on("transcript.final", ({ text }) => {
-				// fullTranscript += text.trim() + ' ';
-				// console.log('✅ Final:', text);
-				// console.log('📄 Full Transcript:', fullTranscript.trim());
-				// });
-
-
-				rt.on("error", (error) => console.error('Error', error));
-
-				await rt.connect();
-
-				console.log('after connect ...');
+				console.log('Post Transcriber Setup ...');
 				connectionStatus = 'connected';
-
-
-
-			isRecording.set(true);
-			recordingStartTime = Date.now();
-			
-			// Start recording timer
-			recordingInterval = setInterval(() => {
-				recordingDuration = Math.floor((Date.now() - recordingStartTime) / 1000);
-				if (recordingDuration >= MAX_RECORDING_TIME) {
-					stopRecording();
-				}
-			}, 1000);
-			
-			// Setup audio processing for AssemblyAI
-			audioContext = new (window.AudioContext || window.webkitAudioContext)();
-			if (audioContext.state === 'suspended') {
-				console.log('Resuming ...');
-				await audioContext.resume();
-			}
-			const source = audioContext.createMediaStreamSource($mediaStream);
-			const processor = audioContext.createScriptProcessor(4096, 1, 1);
-
-			//source.connect(processor);
-			//processor.connect(audioContext.destination); // Required for audio processing to work!
-
-			
-			function downsampleBuffer(buffer, originalSampleRate, targetSampleRate) {
-					
-				if (targetSampleRate === originalSampleRate) {
-						return buffer;
+				
+				
+				
+				isRecording.set(true);
+				recordingStartTime = Date.now();
+				
+				// Start recording timer
+				recordingInterval = setInterval(() => {
+					recordingDuration = Math.floor((Date.now() - recordingStartTime) / 1000);
+					if (recordingDuration >= MAX_RECORDING_TIME) {
+						stopRecording();
 					}
-
-					const sampleRateRatio = originalSampleRate / targetSampleRate;
-					const newLength = Math.round(buffer.length / sampleRateRatio);
-					const result = new Int16Array(newLength);
-
-					let offsetResult = 0;
-					let offsetBuffer = 0;
-
-					while (offsetResult < result.length) {
-						const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-						// Average the samples in this range
-						let sum = 0, count = 0;
-						for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-						sum += buffer[i];
-						count++;
-						}
-						result[offsetResult] = Math.max(-32768, Math.min(32767, (sum / count) * 32768));
-						offsetResult++;
-						offsetBuffer = nextOffsetBuffer;
-					}
-
-					return result;
-			}
-
-			processor.onaudioprocess = (event) => {
-				if ($isRecording) {
-					/*const audioData = event.inputBuffer.getChannelData(0);
-					console.log('AUDIO DATA: ',audioData.slice(0, 10));
-					const int16Array = new Int16Array(audioData.length);
-					for (let i = 0; i < audioData.length; i++) {
-						int16Array[i] = Math.max(-32768, Math.min(32767, audioData[i] * 32768));
-					}*/
-
-
-					//assemblyService.sendAudio(int16Array.buffer);
-					console.log('sending ....');
-					//rt.sendAudio(int16Array.buffer);
-
-					const float32Data = event.inputBuffer.getChannelData(0);
-					const downsampled = downsampleBuffer(float32Data, audioContext.sampleRate, 16000);
-					rt.sendAudio(downsampled.buffer);
+				}, 1000);
+				
+				// Setup audio processing for AssemblyAI
+				audioContext = new (window.AudioContext || window.webkitAudioContext)();
+				if (audioContext.state === 'suspended') {
+					console.log('Resuming ...');
+					await audioContext.resume();
 				}
-			};
+
+
+				listenToMe();
 			
-			source.connect(processor);
-			processor.connect(audioContext.destination);
 			
 		} catch (error) {
 			console.error('Failed to start recording:', error);
@@ -242,7 +257,9 @@
 		showSubmitButton = true;
 		connectionStatus = 'stopped';
 
-		await rt.close();
+
+		if(transcriber)
+			await transcriber.close();
 		
 		if (recordingInterval) {
 			clearInterval(recordingInterval);
@@ -254,7 +271,7 @@
 			audioContext = null;
 		}
 
-		console.log(JSON.stringify(scriptArray));
+		console.log('penultimate:: ', penUltimate);
 		finalTranscript+=penUltimate;
 
 		if(finalTranscript.trim() !== ""){
@@ -388,8 +405,7 @@
 					</div>
 				</div>
 				<div class="live-transcription">
-					<p>{penUltimate}</p>
-
+					<p>{liveTranscript}</p>
 				</div>
 			{/if}
 		</div>
