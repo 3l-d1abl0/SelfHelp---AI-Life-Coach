@@ -13,6 +13,7 @@ export const load: PageServerLoad = async (event) => {
 	// }
 	
 	logger.info(`Profile page loaded for user: ${session.user.email}`);
+		
 	
 	return {
 		user: session.user
