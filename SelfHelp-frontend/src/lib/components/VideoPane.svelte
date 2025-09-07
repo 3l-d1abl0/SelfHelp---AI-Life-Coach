@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	
-	export let stream = null;
+	export let stream: MediaStream | null = null;
 	export let label = '';
 	export let isAI = false;
 	export let showVisualizer = false;

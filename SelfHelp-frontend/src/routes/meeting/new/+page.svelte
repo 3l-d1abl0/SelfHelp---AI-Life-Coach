@@ -2,6 +2,7 @@
 
 	let { data }: { data: PageData } = $props();
 	const { user } = data;
+	console.log('USER: ', user);
 
 	import type { PageData } from './$types';
 
@@ -355,11 +356,12 @@
 
 <div class="page-container">
 	<div class="main-content">
-		<div class="header-section">Let us know something about yourself !</div>
+		<div class="header-section">{user.name}, let us know something about yourself !</div>
 		<div class="video-section">
 			<VideoPane 
+				isAI={false}
 				stream={$mediaStream} 
-				label="You" 
+				label={user.name} 
 				showVisualizer={false}
 			/>
 

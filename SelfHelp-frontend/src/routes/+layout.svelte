@@ -4,7 +4,6 @@
 	import { page } from '$app/state';
 
 	let { data, children } = $props();
-	console.log('data: ', data);
 
 	import { shouldHideProfile } from '$lib/config/layout.js';
 
