@@ -1,31 +1,59 @@
 <script lang="ts">
 	import { transcription } from '../stores/meeting.js';
+
+	let { isCollapsed = $bindable(false), user } = $props();
+
+	console.log("isCollapsed: ", isCollapsed);
+	console.log("user: ", user);
 	
-	export let isCollapsed = false;
+	let transcriptContainer: HTMLDivElement | undefined = $state();
+	let transcriptEntries = $state<{ id: number; speaker: string; text: any; timestamp: string; }[]>([]);
+	let lastProcessedTranscription = $state(null);
 	
-	let transcriptContainer;
-	let transcriptEntries = [];
+	$effect(() => {
+
+		if ($transcription && $transcription !== lastProcessedTranscription) {
+
+			console.log('NEW TRANSCRIPT: ', $transcription);
+			addTranscriptEntry($transcription);
+			lastProcessedTranscription = $transcription;
+    	}
+	});
 	
-	// Subscribe to transcription updates
-	$: if ($transcription) {
-		addTranscriptEntry($transcription);
-	}
-	
-	function addTranscriptEntry(text, speaker = 'User') {
-		if (text.trim()) {
-			transcriptEntries = [...transcriptEntries, {
-				id: Date.now(),
-				speaker,
-				text: text.trim(),
-				timestamp: new Date().toLocaleTimeString()
-			}];
-			
-			// Auto-scroll to bottom
-			setTimeout(() => {
-				if (transcriptContainer) {
-					transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
-				}
-			}, 100);
+	function addTranscriptEntry(text: string, speaker = 'User') {
+
+		try{
+
+			if (speaker=='User')
+				speaker = user
+
+			console.log('adding to Sidebar: ', text);
+			if (text.trim()) {
+
+				console.log('Before: ', transcriptEntries);
+
+				transcriptEntries.push({
+					id: Date.now(),
+					speaker,
+					text: text.trim?.(),
+					timestamp: new Date().toLocaleTimeString()
+				});
+
+				console.log('After: ', transcriptEntries);
+				
+				
+				// Auto-scroll to bottom
+				setTimeout(() => {
+					if (transcriptContainer) {
+						transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
+					}
+				}, 100);
+			}else{
+				console.info("NOT added tp transcript !");
+			}
+
+		} catch (error) {
+			console.error('Error While adding Transcript:', error);
 		}
 	}
 	
@@ -40,7 +68,7 @@
 	}
 	
 	// Export function to add AI responses
-	export function addAIResponse(text) {
+	export function addAIResponse(text: string) {
 		addTranscriptEntry(text, 'AI');
 	}
 </script>
@@ -58,7 +86,7 @@
 			</button>
 		-->
 			
-			<button class="collapse-btn" on:click={toggleCollapse} title={isCollapsed ? 'Expand' : 'Collapse'}>
+			<button aria-label="transcription-sidebar-button" class="collapse-btn" onclick={toggleCollapse} title={isCollapsed ? 'Expand' : 'Collapse'}>
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d={isCollapsed ? "M9 18L15 12L9 6" : "M15 18L9 12L15 6"} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
@@ -134,7 +162,6 @@
 		gap: 8px;
 	}
 	
-	.clear-btn,
 	.collapse-btn {
 		background: none;
 		border: none;
@@ -148,7 +175,6 @@
 		transition: color 0.2s ease;
 	}
 	
-	.clear-btn:hover,
 	.collapse-btn:hover {
 		color: #f9fafb;
 		background: rgba(74, 222, 128, 0.2);
