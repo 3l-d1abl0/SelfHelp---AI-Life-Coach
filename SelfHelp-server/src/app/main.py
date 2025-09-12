@@ -83,8 +83,8 @@ fast_api.include_router(meeting_router, prefix=settings.API_VERSION_STR)
 async def root():
     return {
         "message": "Welcome to the SelfHelp's Meeting API",
-        "docs": "/api/docs",
-        "version": "1.0.0"
+        "docs": "/docs",
+        "version": "0.0.1"
     }
 
 @fast_api.get("/ping")

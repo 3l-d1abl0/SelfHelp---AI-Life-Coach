@@ -19,7 +19,7 @@ class MeetingData(BaseModel):
 
 class MeetingStopResponse(BaseModel):
     status: str
-    message: str
+    detail: str
 
 
 @meeting_router.post("/meeting/new", status_code=status.HTTP_201_CREATED)
@@ -175,7 +175,7 @@ async def stop_meeting(meeting_data: MeetingData) -> Dict[str, Any]:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Meeting not found"
             )
-        
+
         # Check if meeting is already over
         if meeting.get("status") == "OVER":
             return {
