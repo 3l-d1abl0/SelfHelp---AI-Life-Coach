@@ -1,10 +1,10 @@
 <script lang="ts">
+	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 	const { user } = data;
 	console.log('USER: ', user);
 
-	import type { PageData } from './$types';
 
 	import { PUBLIC_BACKEND_SERVER_URL } from '$env/static/public';	
 	import { onMount } from 'svelte';

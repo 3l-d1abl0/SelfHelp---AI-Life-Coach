@@ -13,8 +13,7 @@
 	$effect(() => {
 
 		if ($transcription && $transcription !== lastProcessedTranscription) {
-
-			console.log('NEW TRANSCRIPT: ', $transcription);
+			//console.log('NEW TRANSCRIPT: ', $transcription);
 			addTranscriptEntry($transcription);
 			lastProcessedTranscription = $transcription;
     	}
@@ -30,7 +29,7 @@
 			console.log('adding to Sidebar: ', text);
 			if (text.trim()) {
 
-				console.log('Before: ', transcriptEntries);
+				//console.log('Before: ', transcriptEntries);
 
 				transcriptEntries.push({
 					id: Date.now(),
@@ -39,7 +38,7 @@
 					timestamp: new Date().toLocaleTimeString()
 				});
 
-				console.log('After: ', transcriptEntries);
+				//console.log('After: ', transcriptEntries);
 				
 				
 				// Auto-scroll to bottom
