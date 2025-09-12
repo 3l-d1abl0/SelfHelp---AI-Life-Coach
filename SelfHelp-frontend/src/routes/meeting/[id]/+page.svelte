@@ -464,7 +464,7 @@
 				penUltimate = "";
 				finalTranscript ="";
 
-				//await websocketService.askMentor(userQuery);
+				await websocketService.askMentor(userQuery);
 			}else{
 				console.log("NOT SENT !");
 			}
