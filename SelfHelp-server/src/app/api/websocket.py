@@ -1,15 +1,10 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request, WebSocket, WebSocketDisconnect
 from typing import List, Dict, Any, Optional
-from app.config import settings
 from app.logger import logger
 from datetime import datetime
 import json
-import requests
-import base64
-import google.generativeai as genai
-from app.db.redis import redis_manager
 from app.models.gemini import geminiai
-from app.lib.redislib import save_session
+from app.lib.valkey import save_session, get_session
 
 #Websocket Router initialized
 websocket_router = APIRouter(tags=["websocket"])
@@ -39,13 +34,9 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket, session_id: str):
         await websocket.accept()
         self.active_connections[session_id] = websocket 
-
         #print("CONNECTED: ", session_id, websocket)
         
-        redis_client = await redis_manager.get_redis_client()
-        chat_history = await redis_client.get(session_id)
-        if chat_history:
-            chat_history = json.loads(chat_history)
+        chat_history = chat_history = await get_session(session_id)
 
         mentor_message = get_recent_mentor_message(chat_history)
         
@@ -79,10 +70,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     await manager.connect(websocket, session_id)
 
     # Get a Redis client
-    redis_client = await redis_manager.get_redis_client()
-    chat_history = await redis_client.get(session_id)
-    if chat_history:
-        chat_history = json.loads(chat_history)
+    chat_history = await get_session(session_id)
 
     chat = geminiai.model.start_chat(history=chat_history)
 
@@ -112,7 +100,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
 
             response = chat.send_message(message_data["message"])
             updated_history = chat.history
-            await save_session(str(session_id), updated_history)
+            await save_session(str(session_id), updated_history)# OK
 
             await manager.send_message(session_id, {
                 "type": "conversation",
