@@ -7,7 +7,7 @@ from app.logger import logger
 from app.db.mongodb import db
 from app.models.gemini import geminiai
 from bson.objectid import ObjectId
-from app.lib.redislib import save_session
+from app.lib.valkey import save_session
 
 meeting_router = APIRouter(tags=["meeting"])
 

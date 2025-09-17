@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # Redis Settings
     REDIS_URL: str = Field(default="redis://localhost:6379", description="Redis connection URL")
     REDIS_DB: int = Field(default=0, description="Redis database number")
+
+    # Valkey Settings
+    VALKEY_URL: str = Field(default="localhost", description="Valkey connection URL")
+    VALKEY_PORT: int = Field(default=6379, description="Valkey port")
     
     # Server
     PORT: int = Field(default=8000, description="Server port")

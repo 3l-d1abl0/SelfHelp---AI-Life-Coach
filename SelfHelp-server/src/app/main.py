@@ -12,7 +12,7 @@ from app.api.meeting import meeting_router
 from app.api.websocket import websocket_router
 from app.config import settings, Settings
 from app.db.mongodb import db
-from app.db.redis import redis_manager
+from app.db.valkey import valkey_manager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,9 +24,9 @@ async def lifespan(app: FastAPI):
     
     # Connect to Redis
     try:
-        await redis_manager.connect_redis()
+        await valkey_manager.connect_valkey()
     except Exception as e:
-        logger.error(f"Failed to connect to Redis: {str(e)}")
+        logger.error(f"Failed to connect to Valkey: {str(e)}")
         raise
     
     yield
@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
     db.close_db()
     logger.info("Closed MongoDB connection")
     
-    await redis_manager.close_redis()
+    await valkey_manager.close_valkey()
     logger.info("Shutting down...")
 
 
