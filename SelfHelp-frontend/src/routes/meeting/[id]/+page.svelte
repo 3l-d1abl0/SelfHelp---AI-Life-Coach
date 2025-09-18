@@ -70,7 +70,7 @@
 			await connectToWebSocketService(meetingId);
 
 			//Step 4: Start Avatar
-			//await initializeAvatarSession();
+			await initializeAvatarSession();
 
 			//throw new Error("Testing APIs");
 			
