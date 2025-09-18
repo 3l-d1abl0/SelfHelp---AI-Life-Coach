@@ -1,4 +1,4 @@
-import { PUBLIC_BACKEND_SERVER_URL, PUBLIC_ASSEMBLYAI_WEBSOCKET_URL } from '$env/static/public';
+import { PUBLIC_WEBSOCKET_SERVER_URL } from '$env/static/public';
 
 type handleTranscription = (x: string, y: boolean) => void;
 type handleError = (err: Event | Error) => void;
@@ -36,7 +36,7 @@ export class WebSocketService {
       try{
 
         const self = this;
-        const endpoint = `${PUBLIC_BACKEND_SERVER_URL}/ws/${this.meetingId}`
+        const endpoint = `${PUBLIC_WEBSOCKET_SERVER_URL}/ws/${this.meetingId}`
 
         this.ws = new WebSocket(endpoint);
   
