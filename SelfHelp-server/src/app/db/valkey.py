@@ -30,6 +30,7 @@ class ValkeyManager:
         config = GlideClientConfiguration(
             addresses=config_params['addresses'],
             client_name=config_params.get('client_name'),
+            use_tls=settings.VALKEY_USE_TLS,
             request_timeout=5000,  # 5 seconds timeout
         )
         
