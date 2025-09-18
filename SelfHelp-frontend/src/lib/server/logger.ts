@@ -1,9 +1,16 @@
 import winston from 'winston';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Ensure logs directory exists
-const logsDir = path.resolve('logs');
+const projectRoot = path.resolve(__dirname, '../../../');
+const logsDir = path.join(projectRoot, 'logs');
+//const logsDir = path.resolve('logs');
+
 if (!existsSync(logsDir)) {
 	mkdirSync(logsDir, { recursive: true });
 }
