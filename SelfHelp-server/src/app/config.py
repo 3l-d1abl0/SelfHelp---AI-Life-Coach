@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     # Valkey Settings
     VALKEY_URL: str = Field(default="localhost", description="Valkey connection URL")
     VALKEY_PORT: int = Field(default=6379, description="Valkey port")
+    VALKEY_USE_TLS: int = Field(default=6379, description="Valkey TLS connection")
     
     # Server
     PORT: int = Field(default=8000, description="Server port")
@@ -47,7 +48,9 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[Union[str, AnyHttpUrl]] = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "https://aimentor.sameerbarha.com/",
+        "https://self-help-ai-life-coach-eccentric-syndicate.vercel.app/"
     ]
 
     
