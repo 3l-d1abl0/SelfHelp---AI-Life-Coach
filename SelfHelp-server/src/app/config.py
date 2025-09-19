@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # Valkey Settings
     VALKEY_URL: str = Field(default="localhost", description="Valkey connection URL")
     VALKEY_PORT: int = Field(default=6379, description="Valkey port")
-    VALKEY_USE_TLS: int = Field(default=6379, description="Valkey TLS connection")
+    VALKEY_USE_TLS: bool = Field(default=False, description="Valkey TLS connection")
     
     # Server
     PORT: int = Field(default=8000, description="Server port")

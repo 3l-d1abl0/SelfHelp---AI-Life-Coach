@@ -11,10 +11,7 @@ class MongoDB:
     @classmethod
     def connect_db(cls):
         """Create database connection and ensure database/collection exists."""
-
-        logger.info("MONGO URL: %s", settings.MONGODB_URL)
-        logger.info("MONGO DATABASE: %s", settings.MONGODB_DATABASE)
-        logger.info("MONGO COLLECTION: %s", settings.MONGODB_MEETINGS_COLLECTION)
+        
         try:
             # Connect to MongoDB
             cls.client = MongoClient(settings.MONGODB_URL, server_api=ServerApi('1'))

@@ -54,9 +54,7 @@ class ValkeyManager:
         try:
             if cls._client is None:
                 config = cls.get_valkey_config()
-                print(config)
                 cls._client = await GlideClient.create(config)
-                logger.info(f"Valkey client created for {settings.VALKEY_URL}")
             return cls._client
         except Exception as e:
             logger.error(f"Unexpected Error while creating valkey client : {str(e)}")
