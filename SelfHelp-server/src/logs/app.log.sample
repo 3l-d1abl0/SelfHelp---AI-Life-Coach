@@ -1,0 +1,26 @@
+INFO: 2025-09-16 21:21:02,700 - main.py:lifespan - Starting up...🚀🚀🚀
+INFO: 2025-09-16 21:21:03,626 - mongodb.py:connect_db - Connected to MongoDB database: self-help
+INFO: 2025-09-16 21:21:03,627 - main.py:lifespan - Connected to MongoDB
+INFO: 2025-09-16 21:21:03,653 - valkey.py:connect_valkey - Successfully connected to Valkey
+INFO: 2025-09-16 21:21:38,536 - middleware.py:log_middleware - {'url': '/api/v1/assemblyaiToken', 'method': 'OPTIONS', 'process_time': 0.0001990795135498047, 'status': 200}
+INFO: 2025-09-16 21:21:40,363 - middleware.py:log_middleware - {'url': '/api/v1/assemblyaiToken', 'method': 'POST', 'process_time': 1.8247249126434326, 'status': 200}
+INFO: 2025-09-16 21:22:42,968 - middleware.py:log_middleware - {'url': '/api/v1/meeting/new', 'method': 'OPTIONS', 'process_time': 0.0009267330169677734, 'status': 200}
+INFO: 2025-09-16 21:22:56,592 - valkey.py:save_session - Session for Meeting '68c987d8eb04d5072f1953bc' saved successfully.
+INFO: 2025-09-16 21:22:56,592 - middleware.py:log_middleware - {'url': '/api/v1/meeting/new', 'method': 'POST', 'process_time': 13.618199348449707, 'status': 201}
+INFO: 2025-09-16 21:23:00,072 - middleware.py:log_middleware - {'url': '/api/v1/assemblyaiToken', 'method': 'POST', 'process_time': 1.0147716999053955, 'status': 200}
+INFO: 2025-09-16 21:23:01,375 - middleware.py:log_middleware - {'url': '/api/v1/meeting/start', 'method': 'OPTIONS', 'process_time': 0.0004901885986328125, 'status': 200}
+INFO: 2025-09-16 21:23:01,507 - middleware.py:log_middleware - {'url': '/api/v1/meeting/start', 'method': 'POST', 'process_time': 0.12557125091552734, 'status': 200}
+INFO: 2025-09-16 21:23:01,522 - valkey.py:get_session - Session for meeting '68c987d8eb04d5072f1953bc' retrieved successfully. Found 2 messages.
+INFO: 2025-09-16 21:23:01,523 - valkey.py:get_session - Session for meeting '68c987d8eb04d5072f1953bc' retrieved successfully. Found 2 messages.
+INFO: 2025-09-16 21:23:42,419 - valkey.py:save_session - Session for Meeting '68c987d8eb04d5072f1953bc' saved successfully.
+INFO: 2025-09-16 21:24:50,202 - valkey.py:save_session - Session for Meeting '68c987d8eb04d5072f1953bc' saved successfully.
+INFO: 2025-09-16 21:25:21,111 - valkey.py:save_session - Session for Meeting '68c987d8eb04d5072f1953bc' saved successfully.
+INFO: 2025-09-16 21:25:56,459 - valkey.py:save_session - Session for Meeting '68c987d8eb04d5072f1953bc' saved successfully.
+INFO: 2025-09-16 21:26:36,884 - valkey.py:save_session - Session for Meeting '68c987d8eb04d5072f1953bc' saved successfully.
+INFO: 2025-09-16 21:26:46,526 - middleware.py:log_middleware - {'url': '/api/v1/meeting/stop', 'method': 'OPTIONS', 'process_time': 0.0004868507385253906, 'status': 200}
+INFO: 2025-09-16 21:26:46,665 - middleware.py:log_middleware - {'url': '/api/v1/meeting/stop', 'method': 'POST', 'process_time': 0.13278651237487793, 'status': 200}
+INFO: 2025-09-16 21:26:58,684 - websocket.py:disconnect - WebSocket disconnected: 68c987d8eb04d5072f1953bc
+INFO: 2025-09-16 21:27:51,521 - mongodb.py:close_db - MongoDB connection closed
+INFO: 2025-09-16 21:27:51,522 - main.py:lifespan - Closed MongoDB connection
+INFO: 2025-09-16 21:27:51,523 - valkey.py:close_valkey - Closed Valkey client connection
+INFO: 2025-09-16 21:27:51,523 - main.py:lifespan - Shutting down...

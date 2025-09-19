@@ -1,5 +1,5 @@
 comms-selfhelp
 fastapi-env
 envs/.env
-src/logs/
+src/logs/app.log
 **/__pycache__/
